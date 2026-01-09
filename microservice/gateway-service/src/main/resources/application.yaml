@@ -1,0 +1,59 @@
+server:
+  port: 9000
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+      # Configuración Global de CORS (opcional si ya usas la clase CorsConfig) jams
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            allowedHeaders: "*"
+
+      routes:
+        # 1. Ruta hacia la capa PROCESS (Order Management)
+        - id: process-order-management
+          uri: http://localhost:8080
+          predicates:
+            - Path=/api/v1/process/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: orderManagementCB
+                fallbackUri: forward:/fallback/order-process
+
+        # 2. Ruta hacia la capa SYSTEM (Customer Service)
+        # (Solo si permites acceso directo desde el Gateway)
+        - id: system-customer-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/system/customers/**
+          filters:
+            - StripPrefix=3
+
+        # 3. Ruta hacia la capa SYSTEM (Order Service)
+        - id: system-order-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/system/orders/**
+
+# Configuración de Resilience4j para el Circuit Breaker
+resilience4j:
+  circuitbreaker:
+    instances:
+      orderManagementCB:
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s

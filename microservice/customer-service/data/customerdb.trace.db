@@ -1,0 +1,6 @@
+2026-01-08 05:55:49.795696-06:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "CUSTOMERS" not found (this database is empty); SQL statement:
+insert into customers (email,first_name,last_name,id) values (?,?,?,default) [42104-240]
+2026-01-08 05:58:26.672076-06:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "CUSTOMERS" not found (this database is empty); SQL statement:
+insert into customers (email,first_name,last_name,id) values (?,?,?,default) [42104-240]

@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: order-management-service
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health, info
+    endpoint:
+      health:
+        show-details: always
+logging:
+  level:
+    # Muestra qué está pasando con las peticiones HTTP
+    org.springframework.web: DEBUG
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventoryService:
+        registerHealthMap: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s   # Espera 10s antes de reintentar
+  retry:
+    instances:
+      inventoryService:
+        maxAttempts: 3                 # Reintenta hasta 3 veces purto defaul 8080
+        waitDuration: 2s
